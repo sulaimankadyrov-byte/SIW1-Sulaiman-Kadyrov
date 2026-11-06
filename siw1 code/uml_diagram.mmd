@@ -1,0 +1,149 @@
+classDiagram
+    class Product {
+        <<abstract>>
+        -int id
+        -String name
+        -double price
+        -int quantity
+        +displayInfo() void
+        +calculateFinalPrice()* double
+        +getCategory()* String
+        +compareTo(Product other) int
+        +equals(Object obj) boolean
+        +hashCode() int
+    }
+    class Comparable~Product~ {
+        <<interface>>
+    }
+    class Comparator~Product~ {
+        <<interface>>
+    }
+    class Discountable {
+        <<interface>>
+        +getDiscountPercent() double
+        +calculateDiscountedPrice() double
+    }
+    class Shippable {
+        <<interface>>
+        +calculateShippingCost() double
+        +getDeliveryDays() int
+    }
+    class GamingLaptop {
+        -String gpu
+        -int refreshRate
+        +playGame(String game) void
+        +isHighRefresh() boolean
+    }
+    class OfficeLaptop {
+        -int batteryHours
+        -boolean hasNumpad
+        +joinMeeting() void
+        +canWorkAllDay() boolean
+    }
+    class Ultrabook {
+        -double weightKg
+        -double screenSize
+        +carryInBag() void
+        +isLight() boolean
+    }
+    class NameComparator {
+        +compare(Product a, Product b) int
+    }
+    class PriceComparator {
+        +compare(Product a, Product b) int
+    }
+    class CategoryPriceComparator {
+        +compare(Product a, Product b) int
+    }
+    class Store {
+        -String name
+        -List~Product~ products
+        +addProduct(Product p) void
+        +removeProduct(Product p) void
+        +equals(Object obj) boolean
+        +hashCode() int
+    }
+    class Customer {
+        -int id
+        -String name
+        -List~Order~ orders
+        +addOrder(Order o) void
+        +removeOrder(Order o) void
+        +equals(Object obj) boolean
+        +hashCode() int
+    }
+    class Order {
+        -int orderId
+        -Customer customer
+        -List~OrderItem~ items
+        -String status
+        +addItem(Product p, int qty) void
+        +getTotal() double
+        +equals(Object obj) boolean
+        +hashCode() int
+    }
+    class OrderItem {
+        -Product product
+        -int quantity
+        +getTotal() double
+        +equals(Object obj) boolean
+        +hashCode() int
+    }
+    class Cashier {
+        -int id
+        -String name
+        -List~Order~ processedOrders
+        +processOrder(Order o) void
+        +equals(Object obj) boolean
+        +hashCode() int
+    }
+    class ProductService {
+        -Store store
+        -Map~Integer, Product~ productById
+        -Map~String, List~Product~~ productsByCategory
+        +addProduct(Product p) void
+        +findById(int id) Product
+        +updatePrice(int id, double price) void
+        +removeProduct(int id) void
+        +getByCategory(String c) List~Product~
+        +filterByMaxPrice(double max) List~Product~
+        +searchByName(String text) List~Product~
+        +getSortedNatural() List~Product~
+        +getSorted(Comparator c) List~Product~
+        +getTotalStockValue() double
+        +printCategoryReport() void
+    }
+    class OrderService {
+        -Map~Integer, Customer~ customerById
+        -Map~Integer, Order~ orderById
+        -Queue~Order~ orderQueue
+        +addCustomer(Customer c) void
+        +submitOrder(Order o) void
+        +processNextOrder(Cashier c) Order
+        +cancelOrder(int id) void
+        +getTotalRevenue() double
+    }
+
+    Product <|-- GamingLaptop
+    Product <|-- OfficeLaptop
+    Product <|-- Ultrabook
+    Comparable <|.. Product
+    Discountable <|.. GamingLaptop
+    Discountable <|.. OfficeLaptop
+    Shippable <|.. GamingLaptop
+    Shippable <|.. Ultrabook
+    Comparator <|.. NameComparator
+    Comparator <|.. PriceComparator
+    Comparator <|.. CategoryPriceComparator
+    Store "1" o-- "0..*" Product : aggregation
+    Order "1" *-- "1..*" OrderItem : composition
+    OrderItem "*" --> "1" Product : N-M Order-Product
+    Customer "1" --> "0..*" Order : 1-N places
+    Order "*" --> "1" Customer
+    Cashier "1" --> "0..*" Order : 1-N processes
+    ProductService --> Store
+    ProductService ..> Product : manages
+    ProductService ..> NameComparator : uses
+    OrderService ..> Order : queue
+    OrderService ..> Customer : index
+    OrderService ..> Cashier : uses
